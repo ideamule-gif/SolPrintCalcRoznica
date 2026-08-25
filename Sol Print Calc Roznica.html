@@ -4,6 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sol Print — Розничный калькулятор</title>
+    
+    <!-- Иконки для вкладки -->
+    <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
+    <link rel="icon" type="image/png" sizes="512x512" href="icon-512.png">
+    <link rel="apple-touch-icon" href="icon-192.png">
+    
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js">
     </script>
     <style>
@@ -235,6 +241,23 @@
             border-top: 1px solid #eee;
             margin: 12px 0;
         }
+        @media (max-width: 480px) {
+            .calc-container {
+                padding: 15px;
+            }
+            .row {
+                flex-direction: column;
+                gap: 0;
+            }
+            #totalPrice {
+                font-size: 30px;
+            }
+            .btn-save {
+                width: 100%;
+                font-size: 15px;
+                padding: 14px;
+            }
+        }
     </style>
 </head>
 <body>
@@ -243,6 +266,7 @@
         <div class="logo-box">
             <h1>SOL <span>PRINT</span></h1>
             <p class="subtitle">Широкоформатная печать — Розничный прайс</p>
+            <span class="badge">🩱 Цены для заказчиков</span>
         </div>
 
         <div class="form-group">
