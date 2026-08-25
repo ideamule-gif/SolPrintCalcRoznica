@@ -57,6 +57,7 @@
             border-radius: 20px;
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
             border-top: 6px solid var(--primary);
+            position: relative;
         }
         .logo-box {
             text-align: center;
@@ -257,26 +258,32 @@
             border-top: 1px solid #eee;
             margin: 12px 0;
         }
-        /* Баннер для установки PWA */
-        .install-banner {
-            display: none;
-            background: var(--primary);
-            color: #fff;
-            padding: 12px 16px;
-            border-radius: 12px;
-            margin-bottom: 15px;
+
+        /* ===== PWA — МАЛЕНЬКАЯ ССЫЛКА ВНИЗУ ===== */
+        .pwa-install {
             text-align: center;
-            font-weight: 600;
-            font-size: 14px;
+            margin-top: 20px;
+            padding-top: 15px;
+            border-top: 1px solid #eee;
+        }
+        .pwa-install a {
+            display: inline-block;
+            font-size: 12px;
+            color: #999;
+            text-decoration: none;
+            transition: 0.2s;
             cursor: pointer;
-            transition: 0.3s;
+            padding: 4px 12px;
+            border-radius: 20px;
         }
-        .install-banner:hover {
-            background: var(--accent);
+        .pwa-install a:hover {
+            color: var(--primary);
+            background: rgba(0, 180, 216, 0.08);
         }
-        .install-banner.show {
-            display: block;
+        .pwa-install a.hidden {
+            display: none;
         }
+
         @media (max-width: 480px) {
             .calc-container {
                 padding: 15px;
@@ -299,11 +306,6 @@
 <body>
 
     <div class="calc-container">
-        <!-- Баннер для установки PWA -->
-        <div class="install-banner" id="installBanner">
-            📲 Установить приложение
-        </div>
-
         <div class="logo-box">
             <h1>SOL <span>PRINT</span></h1>
             <p class="subtitle">Широкоформатная печать — Розничный прайс</p>
@@ -407,33 +409,40 @@
         <div class="btn-container">
             <button class="btn-save" onclick="saveToPDF()">Сохранить расчёт в PDF</button>
         </div>
+
+        <!-- ===== PWA — МАЛЕНЬКАЯ ССЫЛКА ВНИЗУ ===== -->
+        <div class="pwa-install">
+            <a id="pwaInstallLink" class="hidden" onclick="installPWA()">
+                📲 Установить как приложение
+            </a>
+        </div>
     </div>
 
     <script>
-        // ===== PWA УСТАНОВКА =====
+        // ===== PWA УСТАНОВКА (маленькая ссылка внизу) =====
         let deferredPrompt;
 
         window.addEventListener('beforeinstallprompt', (e) => {
             e.preventDefault();
             deferredPrompt = e;
-            document.getElementById('installBanner').classList.add('show');
+            document.getElementById('pwaInstallLink').classList.remove('hidden');
         });
 
-        document.getElementById('installBanner').addEventListener('click', async () => {
+        function installPWA() {
             if (deferredPrompt) {
                 deferredPrompt.prompt();
-                const result = await deferredPrompt.userChoice;
-                if (result.outcome === 'accepted') {
-                    console.log('PWA установлено');
-                    document.getElementById('installBanner').classList.remove('show');
-                }
-                deferredPrompt = null;
+                deferredPrompt.userChoice.then((result) => {
+                    if (result.outcome === 'accepted') {
+                        console.log('PWA установлено');
+                        document.getElementById('pwaInstallLink').classList.add('hidden');
+                    }
+                    deferredPrompt = null;
+                });
             }
-        });
+        }
 
-        // Скрываем баннер, если уже установлено
         window.addEventListener('appinstalled', () => {
-            document.getElementById('installBanner').classList.remove('show');
+            document.getElementById('pwaInstallLink').classList.add('hidden');
         });
 
         // ===== ОСНОВНОЙ КОД =====
