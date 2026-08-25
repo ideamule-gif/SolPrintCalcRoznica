@@ -2,13 +2,24 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Sol Print — Розничный калькулятор</title>
+    
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="manifest.json">
     
     <!-- Иконки для вкладки -->
     <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
     <link rel="icon" type="image/png" sizes="512x512" href="icon-512.png">
     <link rel="apple-touch-icon" href="icon-192.png">
+    
+    <!-- Для Safari на iOS -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Sol Print">
+    
+    <!-- Цвет темы для браузера -->
+    <meta name="theme-color" content="#00b4d8">
     
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js">
     </script>
@@ -35,6 +46,8 @@
             padding: 20px;
             color: var(--dark);
             line-height: 1.5;
+            -webkit-tap-highlight-color: transparent;
+            user-select: none;
         }
         .calc-container {
             background: #fff;
@@ -101,6 +114,8 @@
             background: #fff;
             transition: 0.2s;
             color: var(--dark);
+            -webkit-appearance: none;
+            appearance: none;
         }
         select:focus,
         input:focus {
@@ -141,8 +156,8 @@
             font-weight: 400;
         }
         .checkbox-row input[type="checkbox"] {
-            width: 18px;
-            height: 18px;
+            width: 20px;
+            height: 20px;
             accent-color: var(--primary);
             cursor: pointer;
             flex-shrink: 0;
@@ -224,6 +239,7 @@
             transition: 0.3s;
             text-transform: uppercase;
             letter-spacing: 0.5px;
+            -webkit-tap-highlight-color: transparent;
         }
         .btn-save:hover {
             background: var(--accent);
@@ -240,6 +256,26 @@
             border: none;
             border-top: 1px solid #eee;
             margin: 12px 0;
+        }
+        /* Баннер для установки PWA */
+        .install-banner {
+            display: none;
+            background: var(--primary);
+            color: #fff;
+            padding: 12px 16px;
+            border-radius: 12px;
+            margin-bottom: 15px;
+            text-align: center;
+            font-weight: 600;
+            font-size: 14px;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+        .install-banner:hover {
+            background: var(--accent);
+        }
+        .install-banner.show {
+            display: block;
         }
         @media (max-width: 480px) {
             .calc-container {
@@ -263,6 +299,11 @@
 <body>
 
     <div class="calc-container">
+        <!-- Баннер для установки PWA -->
+        <div class="install-banner" id="installBanner">
+            📲 Установить приложение
+        </div>
+
         <div class="logo-box">
             <h1>SOL <span>PRINT</span></h1>
             <p class="subtitle">Широкоформатная печать — Розничный прайс</p>
@@ -369,6 +410,33 @@
     </div>
 
     <script>
+        // ===== PWA УСТАНОВКА =====
+        let deferredPrompt;
+
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            document.getElementById('installBanner').classList.add('show');
+        });
+
+        document.getElementById('installBanner').addEventListener('click', async () => {
+            if (deferredPrompt) {
+                deferredPrompt.prompt();
+                const result = await deferredPrompt.userChoice;
+                if (result.outcome === 'accepted') {
+                    console.log('PWA установлено');
+                    document.getElementById('installBanner').classList.remove('show');
+                }
+                deferredPrompt = null;
+            }
+        });
+
+        // Скрываем баннер, если уже установлено
+        window.addEventListener('appinstalled', () => {
+            document.getElementById('installBanner').classList.remove('show');
+        });
+
+        // ===== ОСНОВНОЙ КОД =====
         let fontBase64 = null;
 
         async function loadFont() {
@@ -550,7 +618,6 @@
             const left = 20;
             let y = 20;
 
-            // Заголовок
             doc.setFontSize(24);
             doc.setTextColor(0, 180, 216);
             doc.text('SOL PRINT', left, y);
